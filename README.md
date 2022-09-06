@@ -1,3 +1,13 @@
+## 2022.9.6 新增手写板块
+
+代码放在 `Handwriting`文件夹，将分三部分：
+
+- JS 基础
+- 数据操作
+- 常见应用 utils
+
+---
+
 算是重新刷一下 leetcode
 
 # 为什么算是重新
@@ -33,6 +43,7 @@
    1. **审题**
    2. **抽象算法模型**
    3. **思路优化**
+
 2. **先写关键点（主要方法，算法标签）**
 3. **写注释和代码**
 
@@ -40,16 +51,12 @@
 
 每周十题左右吧，题解按周分文件
 
-
-
 # 参考资源
 
 ## 题目来自
 
 当然来自力扣，但是具体怎么选择是根据 [codeTop](https://codetop.cc/home) 直接选择前端分区按频率从高往低刷~ 这次不分类了，反正之前也刷过，最多看看题解也就捡回来了吧~这种随机的刷或许也更接近面试
 
-
-
 ---
 
-> 这一遍算是重新用JS刷一次高频面试，合集仓库：[okkjoo-leetcodeHot-byJs](https://github.com/okkjoo/okkjoo-leetcodeHot-byJs)
+> 这一遍算是重新用 JS 刷一次高频面试，合集仓库：[okkjoo-leetcodeHot-byJs](https://github.com/okkjoo/okkjoo-leetcodeHot-byJs)
