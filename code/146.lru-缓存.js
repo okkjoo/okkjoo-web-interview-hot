@@ -5,7 +5,7 @@
  */
 
 // @lc code=start
-class _node {
+/* class _node {
 	constructor(key, value) {
 		this.key = key;
 		this.value = value;
@@ -71,8 +71,35 @@ class LRUCache {
 		this.remove(tail);
 		return tail;
 	}
-}
+} */
 
+/* 借助 JavaScript 的 Map 特性完成 */
+class LRUCache {
+	constructor(limit) {
+		this.limit = limit;
+		this.cache = new Map();
+	}
+
+	get(key) {
+		if (!this.cache.has(key)) return -1;
+		const val = this.cache.get(key);
+		this.cache.delete(key);
+		this.cache.set(key, val);
+		return val;
+	}
+
+	put(key, val) {
+		if (this.cache.has(key)) this.cache.delete(key);
+		else if (this.cache.size >= this.limit) {
+			/*  注意这里 keys() 返回一个 MapIterator 
+			其中 next() 方法 调用第一次时返回的 value 
+			就是 cache 的第一对键值对的 key
+			*/
+			this.cache.delete(this.cache.keys().next().value);
+		}
+		this.cache.set(key, val);
+	}
+}
 /**
  * Your LRUCache object will be instantiated and called as such:
  * var obj = new LRUCache(capacity)
