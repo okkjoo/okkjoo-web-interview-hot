@@ -23,3 +23,5 @@ console.log(getType({})); //object
 console.log(getType(() => {})); //function
 console.log(getType(new Date())); //date
 console.log(getType(1)); //number
+
+export default getType;
