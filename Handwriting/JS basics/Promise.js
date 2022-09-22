@@ -1,5 +1,6 @@
 /* 
 Promise 实现
+Promise A+ 规定回调为微任务，这里用 setTimeout 模拟
 */
 
 /* 三种状态 */
@@ -18,24 +19,31 @@ function MyPromise(executor) {
 	self.onRejectedCallbacks = [];
 
 	const resolve = value => {
-		if (self.status !== PENDING) return;
+		if (value instanceof MyPromise) {
+			return value.then(resolve, reject);
+		}
+
 		setTimeout(() => {
+			if (self.status !== PENDING) return;
 			self.status = FULFILLED;
 			self.value = value;
-			self.onFulfilledCallbacks.forEach(callback => callback(self.value));
-		});
+			self.onFulfilledCallbacks.forEach(callback => void callback(value));
+		}, 0);
 	};
 
 	const reject = error => {
-		if (self.status !== PENDING) return;
 		setTimeout(() => {
+			if (self.status !== PENDING) return;
 			self.status = REJECTED;
-			self.error = error;
-			self.onRejectedCallbacks.forEach(callback => callback(self.error));
-		});
+			self.value = value;
+			self.onRejectedCallbacks.forEach(callback => void callback(value));
+		}, 0);
 	};
-
-	executor(resolve, reject);
+	try {
+		executor(resolve, reject);
+	} catch (e) {
+		reject(e);
+	}
 }
 
 /**
@@ -45,23 +53,33 @@ function MyPromise(executor) {
  * @returns
  */
 MyPromise.prototype.then = function (onFulfilled, onRejected) {
+	onFulfilled =
+		typeof onFulfilled === 'function' ? onFulfilled : value => value;
+	onRejected =
+		typeof onRejected === 'function'
+			? onRejected
+			: error => {
+					throw error;
+			  };
+
 	if (this.status === PENDING) {
 		this.onFulfilledCallbacks.push(onFulfilled);
 		this.onRejectedCallbacks.push(onRejected);
 	} else if (this.status === FULFILLED) {
 		onFulfilled(this.value);
 	} else {
-		onRejected(this.error);
+		onRejected(this.value);
 	}
-	return this;
 };
 
 /* test */
+let f = a => {
+	return new MyPromise((resolve, reject) => {
+		resolve(a);
+	});
+};
 
-const p = new MyPromise(function (resolve, reject) {
-	setTimeout(function () {
-		resolve(1);
-	}, 1000);
+f(1).then(v => {
+	console.log(v); //1
+	return f(2);
 });
-p.then().then().then();
-console.log(p.onFulfilledCallbacks.length); //3
