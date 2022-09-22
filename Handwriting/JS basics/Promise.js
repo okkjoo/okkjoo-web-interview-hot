@@ -13,15 +13,16 @@ function MyPromise(executor) {
 	self.value = null;
 	self.error = null;
 	self.status = PENDING;
-	self.onFulfilled = null;
-	self.onFulfilled = null;
+
+	self.onFulfilledCallbacks = [];
+	self.onRejectedCallbacks = [];
 
 	const resolve = value => {
 		if (self.status !== PENDING) return;
 		setTimeout(() => {
 			self.status = FULFILLED;
 			self.value = value;
-			self.onFulfilled(self.value);
+			self.onFulfilledCallbacks.forEach(callback => callback(self.value));
 		});
 	};
 
@@ -30,18 +31,23 @@ function MyPromise(executor) {
 		setTimeout(() => {
 			self.status = REJECTED;
 			self.error = error;
-			self.onRejected(self.error);
+			self.onRejectedCallbacks.forEach(callback => callback(self.error));
 		});
 	};
 
 	executor(resolve, reject);
 }
 
-/* then */
+/**
+ * then
+ * @param {function} onFulfilled 返回成功结果时的处理函数
+ * @param {function} onRejected 返回失败结果时的处理函数
+ * @returns
+ */
 MyPromise.prototype.then = function (onFulfilled, onRejected) {
 	if (this.status === PENDING) {
-		this.onFulfilled = onFulfilled;
-		this.onRejected = onRejected;
+		this.onFulfilledCallbacks.push(onFulfilled);
+		this.onRejectedCallbacks.push(onRejected);
 	} else if (this.status === FULFILLED) {
 		onFulfilled(this.value);
 	} else {
@@ -57,5 +63,5 @@ const p = new MyPromise(function (resolve, reject) {
 		resolve(1);
 	}, 1000);
 });
-
-p.then(v => console.log(v));
+p.then().then().then();
+console.log(p.onFulfilledCallbacks.length); //3
