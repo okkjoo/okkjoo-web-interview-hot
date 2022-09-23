@@ -61,7 +61,7 @@ test().then()
 /**
  *  babel 编译 async (easy 版)
  * @param {Generator} generatorFn 迭代器函数
- * @returns {Promise}
+ * @returns {Function<Promise>} 返回一个函数
  */
 function asyncToGenerator(generatorFn) {
 	/* 返回一个函数 */
