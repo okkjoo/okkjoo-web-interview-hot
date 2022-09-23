@@ -35,8 +35,8 @@ function MyPromise(executor) {
 		setTimeout(() => {
 			if (self.status !== PENDING) return;
 			self.status = REJECTED;
-			self.value = value;
-			self.onRejectedCallbacks.forEach(callback => void callback(value));
+			self.error = error;
+			self.onRejectedCallbacks.forEach(callback => void callback(error));
 		}, 0);
 	};
 	try {
@@ -99,6 +99,15 @@ MyPromise.prototype.then = function (onFulfilled, onRejected) {
 	});
 };
 
+/**
+ * catch 方法 其实就是 then 的语法糖
+ * @param {function} onRejected 处理错误
+ * @returns {Promise}
+ */
+MyPromise.prototype.catch = function (onRejected) {
+	return this.then(null, onRejected);
+};
+
 /* test */
 let f = a => {
 	return new MyPromise((resolve, reject) => {
@@ -115,4 +124,8 @@ const t = f(1)
 		console.log(v); //2
 		return 9;
 	})
-	.then(v => console.log(v)); //9
+	.then(v => {
+		console.log(v); //9
+		throw new Error('ee');
+	})
+	.catch(e => console.log(e)); //[Error: ee]
