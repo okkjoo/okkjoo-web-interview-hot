@@ -50,7 +50,7 @@ function MyPromise(executor) {
  * then
  * @param {function} onFulfilled 返回成功结果时的处理函数
  * @param {function} onRejected 返回失败结果时的处理函数
- * @returns
+ * @returns {Promise}返回一个新的 Promise 实例
  */
 MyPromise.prototype.then = function (onFulfilled, onRejected) {
 	onFulfilled =
@@ -61,15 +61,42 @@ MyPromise.prototype.then = function (onFulfilled, onRejected) {
 			: error => {
 					throw error;
 			  };
+	const self = this;
+	return new MyPromise((resolve, reject) => {
+		let fulfilled = () => {
+			try {
+				const result = onFulfilled(self.value);
+				return result instanceof MyPromise
+					? result.then(resolve, reject)
+					: resolve(result);
+			} catch (e) {
+				reject(e);
+			}
+		};
+		let rejected = () => {
+			try {
+				const result = onRejected(self.error);
+				return result instanceof MyPromise
+					? result.then(resolve, reject)
+					: reject(result);
+			} catch (e) {
+				reject(e);
+			}
+		};
 
-	if (this.status === PENDING) {
-		this.onFulfilledCallbacks.push(onFulfilled);
-		this.onRejectedCallbacks.push(onRejected);
-	} else if (this.status === FULFILLED) {
-		onFulfilled(this.value);
-	} else {
-		onRejected(this.value);
-	}
+		switch (self.status) {
+			case PENDING:
+				self.onFulfilledCallbacks.push(fulfilled);
+				self.onRejectedCallbacks.push(rejected);
+				break;
+			case FULFILLED:
+				fulfilled();
+				break;
+			case REJECTED:
+				rejected();
+				break;
+		}
+	});
 };
 
 /* test */
@@ -79,7 +106,13 @@ let f = a => {
 	});
 };
 
-f(1).then(v => {
-	console.log(v); //1
-	return f(2);
-});
+const t = f(1)
+	.then(v => {
+		console.log(v); //1
+		return f(2);
+	})
+	.then(v => {
+		console.log(v); //2
+		return 9;
+	})
+	.then(v => console.log(v)); //9
