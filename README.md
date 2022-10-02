@@ -1,4 +1,4 @@
-> 目录在 [route.md](./route.md)
+> 目录在 [routes.md](./routes.md)
 
 ## 2022.9.6 新增手写板块
 
