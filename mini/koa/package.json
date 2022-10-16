@@ -1,0 +1,15 @@
+{
+  "name": "mini-koa",
+  "version": "1.0.0",
+  "description": "mini-koa",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "keywords": [
+    "mini",
+    "koa"
+  ],
+  "author": "okkjoo",
+  "license": "ISC"
+}
