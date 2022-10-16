@@ -11,6 +11,7 @@ module.exports = class Application {
 			// 对中间件回调函数串联，形成洋葱模型
 			const fn = compose(this.middlewares); // compose 是重点。返回一个函数，效果是串联
 			await fn(ctx);
+			ctx.res.end(ctx.body);
 		});
 		server.listen(...args);
 	}
