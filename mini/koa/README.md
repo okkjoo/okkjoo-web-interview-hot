@@ -35,6 +35,7 @@ app.listen(3000);
 - Application 服务器框架
 - Context 框架中各种东东的封装
 - MiddleWare 中间件 —— 洋葱模型，应该都听过吧，这个重点看 compose 实现
+  > [从 koa-compose 源码中学习如何实现 Promise 链式调用和洋葱模型](https://juejin.cn/post/7117121741356269604)
 
 ## 测试
 
