@@ -6,6 +6,7 @@
 		: ((global = global || self), factory((global.Redux = {})));
 })(this, function (exports) {
 	'use strict';
+	/* createStore */
 	/**
 	 *
 	 * @param {Function} reducer 返回下一个状态树的函数，参数为当前状态和 action
@@ -70,5 +71,27 @@
 		/* 返回 store */
 		return { getState, dispatch, subscribe };
 	}
+
+	/* compose */
+	/**
+	 * 将函数从右到左组合在一起
+	 * @param  {...Function} fns 要组合的函数
+	 * @returns	从右到左组合后的函数 `compose(f, g, h) -> (...args) => f(g(h(...args)))`
+	 */
+	function compose(...fns) {
+		if (fns.length === 0) return arg => arg;
+		if (fns.length === 1) return fns[0];
+		return fns.reduce(
+			(a, b) =>
+				(...args) =>
+					a(b(...args))
+		);
+	}
+
+	/* applyMiddleware */
+
+	function applyMiddleware() {}
 	exports.createStore = createStore;
+	exports.compose = compose;
+	exports.applyMiddleware = applyMiddleware;
 });
