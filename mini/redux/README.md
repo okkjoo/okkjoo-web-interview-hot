@@ -71,13 +71,81 @@ return {
 在 createStore 中作为第二个参数返回，
 createStore 是有对参数类型判断后进行调整的
 
-像这样：
+像这样使用：
 
 ```js
-var store = Redux.createStore(counter, Redux.applyMiddleware(logger1, logger2,  logger3))\
+var store = Redux.createStore(
+	counter,
+	Redux.applyMiddleware(logger1, logger2, logger3)
+);
 ```
 
 这个 store 就是增强了 dispatch 方法的 store 对象了
+
+我们看看这样进入 createStore 之后是怎么样
+
+![1666156367579](image/README/1666156367579.png)
+
+其实 applyMiddleware 就是一个 redux 唯一一个自带的 enhancer
+
+那么 createStore 返回的就是
+
+```js
+applyMiddleware(...middleware)(createStore)(reducer, preloadedState);
+```
+
+所以 applyMiddleware 要返回啥？
+
+首先它接收 middlewares 之后，返回的第一层是一个接收 createStore 的函数，然后返回第二层函数，第二层函数接收 reducer...等参数，然后返回第三层。
+
+第三层返回的也要和 没传入 enhancer 时的 crateStore 或者说基础版的 createStore 返回的一样，是一个 store。但是这个 store，是 dispatch 强化后的 store~
+
+用强化后的 dispatch 覆盖掉原来的即可
+
+```js
+return { ...store, dispatch };
+```
+
+#### 怎么强化的 dispatch
+
+首先强化后的 dispatch 肯定还是 dispatch，所以 compose 最后一个就是原来的 store.dispatch
+
+如果传入的 middlewares 是`[a,b,c]`，那么强化后的 dispatch 就是 `a(b(c(store.dispatch)))`
+
+```js
+const dispatch = compose(...chain)(store.dispatch);
+```
+
+#### 中间件的写法
+
+首先，中间件要连成一串，需要一个 next 方法来保证串联 —— 或者说，首位相连就是通过这个保证的，对 next 进行一层层的包装，他自然需要独立一层。compose 完，要的就是强化的 dispatch，是 dispatch 就要接收 action，所以也要在最后一层接收 action 参数。中间件还要可以使用 store 中的东西，比如 getState 和 action，所以 store 要放在顶层
+
+那大概就是这样
+
+```js
+function middleware() {
+	return ({ getState, dispatch }) => {
+		return next => action => {
+			return next(action);
+		};
+	};
+}
+```
+
+或者说，其实你也可以这么理解，触发 dispatch 之后，就触发了 middleware1、然后 next 到 middleware2...，最后到 dispatch —— 这个就是原始的，没强化的 store.dispatch
+
+输出强化后的 store.dispatch 看看：
+
+![1666164715395](image/README/1666164715395.png)
+
+他确实就是 第一个中间件 中的第二层函数
+
+```js
+function (action) {
+  //...
+  next(action)
+};
+```
 
 ### Redux.compose
 
@@ -101,3 +169,27 @@ koa 中是递归 dispatch 遍历 + promise，仓库里的 mini-koa 只实现了�
 
 按下 +1 后的工程流程
 ![1666147921779](image/README/1666147921779.png)
+
+### example.applyMiddleware
+
+![1666163349329](image/README/1666163349329.gif)
+
+![1666163370865](image/README/1666163370865.png)
+
+可以看到：
+
+- action 是一级一级往下传的
+- 第三个中输出的 next 就是原始的 dispatch，最后执行对应 action 的就是原始的 dispatch
+
+整体就是洋葱模型：123 321
+
+---
+
+讲的有点乱，尤其 applyMiddleware 部分。文中用了很多 "或者说"，其实就是我试图换一种表达看看能不能表达的更好，写作水平还望海涵
+
+如果你没看懂，那是我的问题！
+
+你还可以看看这几个：
+
+- (学习 redux 源码整体架构，深入理解 redux 及其中间件原理)[https://github.com/lxchuan12/redux-analysis/#readme]
+- (Redux 从设计到源码)[https://tech.meituan.com/2017/07/14/redux-design-code.html]
