@@ -92,3 +92,12 @@ koa 中是递归 dispatch 遍历 + promise，仓库里的 mini-koa 只实现了�
 ---
 
 自己实现的 mini 版本，省略了很多边界的判断，大家可以直接从源码中学习相关的边界，非常细！
+
+## example show
+
+### basic createStore example
+
+![1666146922591](image/README/1666146922591.gif)
+
+按下 +1 后的工程流程
+![1666147921779](image/README/1666147921779.png)
