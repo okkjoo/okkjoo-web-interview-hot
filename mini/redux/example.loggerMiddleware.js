@@ -2,20 +2,24 @@
 中间件的写法是三层函数，个人感觉还是挺绕的
 */
 function logger1({ getState }) {
-	return next => action => {
-		console.log('logger1: will dispatch1 next, action:', next, action);
-		const returnValue = next(action);
-		console.log('logger1: state after dispatch1', getState());
-		return returnValue;
+	return function (next) {
+		return function (action) {
+			console.log('logger1: will dispatch1 next:', next);
+			console.log('logger1: action:', action);
+			const returnValue = next(action);
+			console.log('logger1: state after dispatch1:', getState());
+			return returnValue;
+		};
 	};
 }
 
 function logger2({ getState }) {
 	return function (next) {
 		return function (action) {
-			console.log('logger2: will dispatch2 next, action:', next, action);
+			console.log('logger2: will dispatch2 next:', next);
+			console.log('logger2: action:', action);
 			const returnValue = next(action);
-			console.log('logger2: state after dispatch2', getState());
+			console.log('logger2: state after dispatch2:', getState());
 			return returnValue;
 		};
 	};
@@ -26,8 +30,9 @@ const logger3 =
 	({ getState }) =>
 	next =>
 	action => {
-		console.log('logger3: will dispatch3 next, action:', next, action);
+		console.log('logger3: will dispatch3 next:', next);
+		console.log('logger3: action:', action);
 		const returnValue = next(action);
-		console.log('logger3: state after dispatch3', getState());
+		console.log('logger3: state after dispatch3:', getState());
 		return returnValue;
 	};
