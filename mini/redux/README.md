@@ -110,11 +110,49 @@ return { ...store, dispatch };
 
 首先强化后的 dispatch 肯定还是 dispatch，所以 compose 最后一个就是原来的 store.dispatch
 
-如果传入的 middlewares 是`[a,b,c]`，那么强化后的 dispatch 就是 `a(b(c(store.dispatch)))`
+如果传入的 middlewares 是`[a,b,c]`，chain 就是加工后的 middleware，或者说就是已经传入 store 并调用的 middleware，那么强化后的 dispatch 就是 `a2(b2(c2(store.dispatch)))`
+
+a 是长这样的：
+
+```js
+function logger1({ getState }) {
+	return function (next) {
+		return function (action) {
+			//...
+			const returnValue = next(action);
+			//...
+		};
+	};
+}
+```
+
+a2 是长这样的，接收 next：
+
+```js
+function (next) {
+		return function (action) {
+			//...
+			const returnValue = next(action);
+			//...
+		};
+	};
+```
+
+然后 compose
 
 ```js
 const dispatch = compose(...chain)(store.dispatch);
 ```
+
+在 compose 后 合起来就是大概这样
+
+```js
+a2(b2(c2(store.dispatch)));
+```
+
+或者说`store.dispatch`作为`c2`的 next 参数传入，`c2(store.dispatch)`作为`b2`的`next`参数传入...
+
+所以在 a2 中调用 next，就会串联到下一个里面，执行完了原始的 dispatch 后，又一个个的回去 ——形成洋葱模型
 
 #### 中间件的写法
 
@@ -150,6 +188,18 @@ function (action) {
 ### Redux.compose
 
 这是一个各大流行库中有使用中间件就有的方法，可以看我 mini-koa 中也有，不过那里的实现方法和这里不太一样
+
+```js
+function compose(...fns) {
+	if (fns.length === 0) return arg => arg;
+	if (fns.length === 1) return fns[0];
+	return fns.reduce(
+		(a, b) =>
+			(...args) =>
+				a(b(...args))
+	);
+}
+```
 
 koa 中是递归 dispatch 遍历 + promise，仓库里的 mini-koa 只实现了简单版本，没有 promise
 
