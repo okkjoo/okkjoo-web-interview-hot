@@ -88,9 +88,27 @@
 		);
 	}
 
-	/* applyMiddleware */
+	/* applyMiddleware 用箭头函数写会简洁很多，但也是真晕 */
 
-	function applyMiddleware() {}
+	function applyMiddleware(...middlewares) {
+		return function (createStore) {
+			return function (reducer, prepreloadedState) {
+				const store = createStore(reducer, prepreloadedState);
+				const middlewareAPI = {
+					getState: store.getState,
+					/* 这里 dispatch 包裹一层的原因：
+					保证每一层 middleware 拿到的是最新的 dispatch
+					*/
+					dispatch: action => dispatch(action),
+				};
+				// 给每一个 middleware 传入 store —— 所以 middleware 第一层函数接收 store
+				const chain = middlewares.map(middleware => middleware(middlewareAPI));
+				// 将 chain 合入 —— 所以 middleware 第二层函数要接收 next，指向下一个中间件 or 原始 dispatch
+				const dispatch = compose(...chain)(store.dispatch);
+				return { ...store, dispatch };
+			};
+		};
+	}
 	exports.createStore = createStore;
 	exports.compose = compose;
 	exports.applyMiddleware = applyMiddleware;
