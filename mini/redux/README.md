@@ -219,6 +219,25 @@ koa 中是递归 dispatch 遍历 + promise，仓库里的 mini-koa 只实现了�
 
 自己实现的 mini 版本，省略了很多边界的判断，大家可以直接从源码中学习相关的边界，非常细！
 
+## 甜点，redux-thunk
+
+再带你手写一个周下载量 300w+ 的 redux 中间件(手动狗头)
+
+![1666234956693](image/README/1666234956693.png)
+
+其实就是判断传入 dispatch 的 action
+
+- 如果是函数，就传入 dispatch 等参数执行它
+- 如果不是，就正常使用，传入下一个中间件
+
+如此就支持了 action 为函数，比如异步请求数据再更新 state
+
+### 断点调试
+
+![1666241922578](image/README/1666241922578.gif)
+
+欢迎自己来调试一下，感受这 dispatch 传递的魅力
+
 ## example show
 
 ### basic createStore example
@@ -255,3 +274,8 @@ koa 中是递归 dispatch 遍历 + promise，仓库里的 mini-koa 只实现了�
 ### example.combineReducers.html
 
 ![1666233885772](image/README/1666233885772.gif)
+
+### example.thunk.html
+
+![1666241584573](image/README/1666241584573.gif)
+![1666241922578](image/README/1666241922578.gif)
