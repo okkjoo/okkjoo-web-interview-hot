@@ -17,11 +17,11 @@
 
 ## Redux 的几个重点
 
-- applyMiddleware:`ƒ applyMiddleware()`函数是一个增强器，组合多个中间件，最终增强 `store.dispatch` 函数，`dispatch` 时，可以串联执行所有中间件。
-- bindActionCreators:`ƒ bindActionCreators(actionCreators, dispatch)`生成 `actions，主要用于其他库，比如` react-redux。
-- combineReducers:`ƒ combineReducers(reducers)`组合多个 `reducers`，返回一个总的 `reducer` 函数。
-- compose:`ƒ compose()`组合多个函数，从右到左，比如：`compose(f, g, h) `最终得到这个结果 `(...args) => f(g(h(...args))).`
 - createStore:` ƒ createStore(reducer, preloadedState, enhancer)` 生成 store 对象
+- compose:`ƒ compose()`组合多个函数，从右到左，比如：`compose(f, g, h) `最终得到这个结果 `(...args) => f(g(h(...args))).`
+- applyMiddleware:`ƒ applyMiddleware()`函数是一个增强器，组合多个中间件，最终增强 `store.dispatch` 函数，`dispatch` 时，可以串联执行所有中间件。
+- combineReducers:`ƒ combineReducers(reducers)`组合多个 `reducers`，返回一个总的 `reducer` 函数。
+- bindActionCreators:`ƒ bindActionCreators(actionCreators, dispatch)`生成 `actions，主要用于其他库，比如` react-redux。
 
 ## Redux.createStore 返回的 store 上的方法
 
@@ -205,7 +205,15 @@ koa 中是递归 dispatch 遍历 + promise，仓库里的 mini-koa 只实现了�
 
 ## Redux.combineReducers(reducers)
 
-就是合 reducers 的
+就是合 reducers 的，合 reducers，那最后返回的自然也是 reducer 函数 —— 接收 state 和 action
+
+并且在里面依次调用传入的各个 reducer
+
+![1666233644253](image/README/1666233644253.png)
+
+将不同 reducer 和相关的状态按照键值对存储到 store 的 state 中
+
+![1666233721507](image/README/1666233721507.png)
 
 ---
 
@@ -243,3 +251,7 @@ koa 中是递归 dispatch 遍历 + promise，仓库里的 mini-koa 只实现了�
 
 - (学习 redux 源码整体架构，深入理解 redux 及其中间件原理)[https://github.com/lxchuan12/redux-analysis/#readme]
 - (Redux 从设计到源码)[https://tech.meituan.com/2017/07/14/redux-design-code.html]
+
+### example.combineReducers.html
+
+![1666233885772](image/README/1666233885772.gif)
