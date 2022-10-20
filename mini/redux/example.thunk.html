@@ -1,0 +1,75 @@
+<!-- redux-thunk 测试-->
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Redux basic example</title>
+    <script src="./index.js"></script>
+    <script src="./redux-thunk.js"></script>
+  </head>
+
+  <body>
+    <div>
+      <p>
+        look this: <span id="value">o.0</span>
+        <button id="XXX">xxx</button>
+        <button id="GET">获取本仓库的详细信息</button>
+
+      </p>
+    </div>
+    <script>
+      function counter(state, action) {
+        if (typeof state === 'undefined') {
+          return 'o.0'
+        }
+
+        switch (action.type) {
+          case 'XXX':
+            return 'xxxxxx'
+          case 'GET':
+            return action.payload
+          default:
+            return state
+        }
+      }
+      var store = Redux.createStore(counter, Redux.applyMiddleware(thunk)) //*
+      var valueEl = document.getElementById('value')
+
+      function render() {
+        valueEl.innerHTML = store.getState().toString()
+      }
+
+      render()
+      store.subscribe(render)
+
+      document.getElementById('XXX')
+        .addEventListener('click', function () {
+          store.dispatch({
+            type: 'XXX'
+          })
+        })
+
+      //*
+      const getRepoInfo = () => {
+        return (dispatch) => {
+          fetch('https://api.github.com/repos/okkjoo/okkjoo-leetcodeHot-byJs')
+            .then((res) => res.json())
+            .then(res => res.description)
+            .then(desc => {
+              console.log(desc)
+              dispatch({
+                type: 'GET',
+                payload: desc
+              })
+            })
+        }
+      }
+
+      document.getElementById('GET')
+        .addEventListener('click', function () {
+          store.dispatch(getRepoInfo())
+        })
+    </script>
+  </body>
+
+</html>
