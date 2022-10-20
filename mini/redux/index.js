@@ -109,7 +109,31 @@
 			};
 		};
 	}
+
+	/* combineReducers */
+	/**
+	 *	将传入的多个 reducer 合为一个 reducer
+	 * @param  {Object} reducers
+	 * @returns	{Function} 内部调用传入的所有 reducers
+	 */
+	function combineReducers(reducers) {
+		//返回一个 reducer
+		return function combination(state = {}, action) {
+			const nextState = {};
+			let hasChanged = false;
+			for (const key in reducers) {
+				/* 前后的 state */
+				const preStateForKey = state[key];
+				const nextSateForKey = reducers[key](preStateForKey, action);
+				nextState[key] = nextSateForKey;
+				hasChanged = hasChanged || preStateForKey !== nextSateForKey;
+			}
+			return hasChanged ? nextState : state;
+		};
+	}
+
 	exports.createStore = createStore;
 	exports.compose = compose;
 	exports.applyMiddleware = applyMiddleware;
+	exports.combineReducers = combineReducers;
 });
