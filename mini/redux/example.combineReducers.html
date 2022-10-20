@@ -1,0 +1,98 @@
+<!-- 测试 combineReducers -->
+<!DOCTYPE html>
+<html>
+
+  <head>
+    <title>Redux combineReducers example</title>
+    <script src="./index.js"></script>
+  </head>
+
+  <body>
+    <div>
+      <p>
+        Clicked counter1: <span id="value">0</span> times
+        <button id="increment">+</button>
+        <button id="decrement">-</button>
+        <br />
+        Clicked counter2: <span id="value2">1</span> times
+        <button id="MultipliedBy2">MultipliedBy2</button>
+        <button id="DividedBy2">DividedBy2</button>
+      </p>
+    </div>
+    <script>
+      function counter(state, action) {
+        if (typeof state === 'undefined') {
+          return 0
+        }
+        switch (action.type) {
+          case 'INCREMENT':
+            return state + 1
+          case 'DECREMENT':
+            return state - 1
+          default:
+            return state
+        }
+      }
+
+      function counter2(state, action) {
+        if (typeof state === 'undefined') {
+          return 1
+        }
+        switch (action.type) {
+          case 'MultipliedBy2':
+            return state * 2
+          case 'DividedBy2':
+            return state / 2
+          default:
+            return state
+        }
+      }
+      const reducer = Redux.combineReducers({
+        counter,
+        counter2
+      });
+      console.info('combine reducer:', reducer) //*
+      var store = Redux.createStore(reducer) //*
+
+      var valueEl = document.getElementById('value')
+      var valueE2 = document.getElementById('value2')
+
+      function render() {
+        valueEl.innerHTML = store.getState().counter.toString()
+        valueE2.innerHTML = store.getState().counter2.toString()
+        console.info('store state:', store.getState()) //*
+      }
+
+      render()
+      store.subscribe(render)
+
+      document.getElementById('increment')
+        .addEventListener('click', function () {
+          store.dispatch({
+            type: 'INCREMENT'
+          })
+        })
+
+      document.getElementById('decrement')
+        .addEventListener('click', function () {
+          store.dispatch({
+            type: 'DECREMENT'
+          })
+        })
+      document.getElementById('MultipliedBy2')
+        .addEventListener('click', function () {
+          store.dispatch({
+            type: 'MultipliedBy2'
+          })
+        })
+
+      document.getElementById('DividedBy2')
+        .addEventListener('click', function () {
+          store.dispatch({
+            type: 'DividedBy2'
+          })
+        })
+    </script>
+  </body>
+
+</html>
