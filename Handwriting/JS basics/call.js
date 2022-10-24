@@ -19,10 +19,11 @@ Function.prototype._call = function (context) {
 	}
 	let args = [...arguments].slice(1),
 		res = null;
-	context = context || window;
-	context.fn = this;
-	res = context.fn(...args);
-	delete context.fn;
+	context = context || globalThis;
+	const key = Symbol();
+	context[key] = this;
+	res = context[key](...args);
+	delete context[key];
 	return res;
 };
 
@@ -36,8 +37,7 @@ a(); //1
 
 const A = { name: 2333 };
 a._call(A); //2333
-window.name = 999;
-a._call(); //999
+a._call(); //1
 /* 
 more: 
 要注意的是，
