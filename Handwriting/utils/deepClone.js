@@ -123,8 +123,10 @@ const deepClone = (target, cache = new WeakMap()) => {
 		cloneTarget = new ctor();
 	}
 
-	if (cache.get(target)) return target;
-	cache.set(target, true);
+	// if (cache.get(target)) return target;
+	// cache.set(target, true);
+	if (cache.has(target)) return cache.get(target);
+	cache.set(target, cloneTarget);
 
 	if (type === mapTag) {
 		target.forEach((item, key) => {
@@ -186,3 +188,24 @@ console.log(b[6]); //{ s: [ 1, 2 ], ss: { s: [ 1, 2 ], ss: [Circular], test: 'te
 
 console.log(a[7]); //false
 console.log(b[7]); //false
+
+//循环引用bug
+const a1 = {};
+a1.self = a1;
+const a2 = deepClone(a1);
+console.log(a1.self !== a2.self); //true
+/* 
+之前 
+```js
+if (cache.get(target)) return target;
+	cache.set(target, true);
+```
+击中缓存后返回 target 本身，导致遍历 a1 self 属性为 a1 时——循环引用时直接返回的是 a1 本身
+那就等于浅拷贝了一个对象属性
+实际上不应该如此，应该返回的是 a1 的深拷贝
+所以 缓存中应该存储 cloneTarget，击中缓存后返回 cloneTarget 才是深拷贝👍
+```js
+if (cache.has(target)) return cache.get(target);
+	cache.set(target, cloneTarget);
+```
+*/
