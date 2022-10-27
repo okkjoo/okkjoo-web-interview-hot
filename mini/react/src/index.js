@@ -42,7 +42,7 @@
 				? document.createTextNode('') //特殊处理 text 节点
 				: document.createElement(element.type);
 
-		// element props 给到 dom children
+		// element props 给到 dom 除了 children
 		const isProperty = key => key !== 'children';
 		Object.keys(element.props)
 			.filter(isProperty)
@@ -53,6 +53,27 @@
 		element.props.children.forEach(child => render(child, dom));
 		//将节点加入容器中
 		container.appendChild(dom);
+	}
+
+	/* Concurrent Mode 并发模型 */
+
+	let nextUnitOfWork = null;
+
+	function workLoop(deadline) {
+		let shouldYield = false;
+		while (nextUnitOfWork && !shouldYield) {
+			nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+			shouldYield = deadline.timeRemaining() < 1;
+		}
+		requestIdleCallback(workLoop);
+	}
+
+	// 设置渲染的第一个任务单元，然后开始循环。
+	requestIdleCallback(workLoop); //让浏览器空闲的时候执行 workLoop 函数
+
+	// 执行每一小块的任务单元，并返回下一个任务单元
+	function performUnitOfWork(nextUnitOfWork) {
+		//TODO
 	}
 
 	exports.createElement = createElement;
