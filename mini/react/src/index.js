@@ -29,7 +29,7 @@
 			type: 'TEXT_ELEMENT',
 			props: {
 				nodeValue: text,
-				children: {},
+				children: [],
 			},
 		};
 	}
@@ -50,12 +50,7 @@
 				dom[name] = element.props[name];
 			});
 		//递归处理子节点
-		try {
-			element.props.children.forEach(child => render(child, dom));
-			console.log(element.props);
-		} catch (error) {
-			console.log('!', element.props);
-		}
+		element.props.children.forEach(child => render(child, dom));
 		//将节点加入容器中
 		container.appendChild(dom);
 	}
