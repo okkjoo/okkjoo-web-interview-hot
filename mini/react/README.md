@@ -188,3 +188,30 @@ Reactz.render(element, container);
 效果：
 
 [1666862503741](image/README/1666862503741.png)
+
+## 并发处理
+
+前面已经完成了 JSX 到 DOM 的过程，但是还有一些问题，比如递归处理子节点的地方
+
+```js
+element.props.children.forEach(child => render(child, dom));
+```
+
+这也是 React 16 之前的问题，一旦开始递归处理，那么在整棵树处理完之前是无法退出的。
+
+这会阻塞主线程很长时间，会带来卡顿的体验，无法给一些高优先级的任务让出时间。
+
+> 高优先级的任务： 用户的输入、点击等操作，动画效果
+
+所以要有一个办法来使得整个任务可以分为多个小块，处理一部分之后先把操作权归还浏览器，让浏览器处理高优先级的任务
+
+> 总体的处理时间是没有变化的，但是体验却好了很多
+
+这里要用到一个浏览器的 API [`requestIdleCallback `](https://developer.mozilla.org/zh-CN/docs/Web/API/Window/requestIdleCallback)，这个方法简单来说就是接收一个回调参数，但是他什么时候执行并不是由你来控制的。而是在浏览器空闲的时候调用。（更多语法详情可以看 MDN ）
+
+> React 并不是用 `requestIdleCallback` 的。
+> 它使用自己编写的 [`scheduler package`](https://github.com/facebook/react/tree/main/packages/scheduler) 但两者的效果差不多
+
+> scheduler
+> This is a package for cooperative scheduling in a browser environment. It is currently used internally by React, but we plan to make it more generic.
+> 这是一个用于浏览器环境中的协作调度的包。它目前在 React 内部使用，但我们计划让它更通用。
