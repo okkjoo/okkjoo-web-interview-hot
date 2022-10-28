@@ -5,7 +5,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <meta name="theme-color" content="#000000">
-    <title>React App</title>
+    <title>Reactz App</title>
     <style>
       div {
         font-size: 20px;
@@ -28,24 +28,42 @@
     const element = (
       <div style="background: salmon">
         <h1>Hello World</h1>
-        <h2 style="text-align:right">from Didact</h2>
+        <h2 style="text-align:right">from Reactz</h2>
       </div>
     );
     ```
     */
-    const element = /*#__PURE__*/ Reactz.createElement(
-      "div", {
-        style: "background: blue; "
-      },
-      /*#__PURE__*/
-      Reactz.createElement("h1", null, "Hello World"),
-      /*#__PURE__*/
-      Reactz.createElement("h2", {
-        style: "text-align:right"
-      }, "from Reactz"));
-
     const container = document.getElementById('root');
-    Reactz.render(element, container);
+
+    const updateValue = e => {
+      console.log(e.target.value);
+      rerender(e.target.value)
+      console.log('render')
+    }
+
+    const rerender = value => {
+      const inputElement = /*#__PURE__*/ Reactz.createElement("div", null, /*#__PURE__*/ Reactz.createElement(
+        "input", {
+          onInput: updateValue,
+          value: value
+        }), /*#__PURE__*/ Reactz.createElement("h2", null, "Hello ", value));
+
+      const element = /*#__PURE__*/ Reactz.createElement(
+        "div", {
+          style: "background: aquamarine; "
+        },
+        /*#__PURE__*/
+        Reactz.createElement("h1", null, "Hello World"),
+        /*#__PURE__*/
+        Reactz.createElement("h2", {
+          style: "text-align:right"
+        }, "from Reactz"),
+        inputElement
+      );
+      Reactz.render(element, container);
+    };
+
+    rerender('z!')
   </script>
 
 </html>
