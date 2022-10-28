@@ -54,18 +54,36 @@
 
 	/* ReactDOM.render  */
 	function render(element, container) {
-		// 将 nextUnitOfWork 设置为 fiber 树的根节点
-		nextUnitOfWork = {
+		// 先记录到 wipRoot 上
+		wipRoot = {
 			dom: container,
 			props: {
 				children: [element],
 			},
 		};
+		// 将 nextUnitOfWork 设置为 fiber 树的根节点
+		nextUnitOfWork = wipRoot;
+	}
+
+	/* commitRoot 提交变更到真实 DOM 树上 */
+	function commitRoot() {
+		commitWork(wipRoot.child);
+		wipRoot = null;
+	}
+
+	function commitWork(fiber) {
+		if (!fiber) return;
+		const domParent = fiber.parent.dom;
+		domParent.appendChild(fiber.dom);
+		// 递归地将所有节点添加到 dom 上
+		commitWork(fiber.child);
+		commitWork(fiber.sibling);
 	}
 
 	/* Concurrent Mode 并发模型 */
 
 	let nextUnitOfWork = null; //第一次就是变为 根节点
+	let wipRoot = null;
 
 	/**
 	 * 当浏览器有空闲的时候，会调用 workLoop 我们就开始遍历整颗树。
@@ -76,6 +94,11 @@
 		while (nextUnitOfWork && !shouldYield) {
 			nextUnitOfWork = performUnitOfWork(nextUnitOfWork); // 执行并返回下一个任务单元
 			shouldYield = deadline.timeRemaining() < 1;
+		}
+
+		// 没有下一个任务单元了 —— 这棵树上的任务完成了
+		if (!nextUnitOfWork && wipRoot) {
+			commitRoot();
 		}
 		requestIdleCallback(workLoop);
 	}
@@ -91,10 +114,7 @@
 			// 用 fiber.dom 维护创建的 DOM 节点
 			fiber.dom = createDom(fiber);
 		}
-		if (fiber.parent) {
-			//添加到父节点的 DOM 上
-			fiber.parent.dom.appendChild(fiber.dom);
-		}
+
 		// create new fibers
 		const elements = fiber.props.children;
 		let index = 0;
