@@ -122,13 +122,18 @@
 
 	function commitWork(fiber) {
 		if (!fiber) return;
-		const domParent = fiber.parent.dom;
+		let domParentFiber = fiber.parent;
+		while (!domParentFiber.dom) {
+			domParentFiber = domParent.parent;
+		}
+		const domParent = domParentFiber.dom;
+
 		// 根据 fiber.effectTag 执行对应的操作 增、删、改
-		if (fiber.effectTag === 'PLACEMENT' && fiber.dom !== null) {
+		if (fiber.effectTag === 'PLACEMENT' && fiber.dom != null) {
 			domParent.appendChild(fiber.dom);
 		} else if (fiber.effectTag === 'DELETION') {
-			domParent.removeChild(fiber.dom);
-		} else if (fiber.effectTag === 'UPDATE' && fiber.dom !== null) {
+			commitDeletion(fiber, domParent);
+		} else if (fiber.effectTag === 'UPDATE' && fiber.dom != null) {
 			updateDom(fiber.dom, fiber.alternate.props, fiber.props);
 		}
 		// 递归地将所有节点添加到 dom 上
@@ -136,6 +141,14 @@
 		commitWork(fiber.sibling);
 	}
 
+	function commitDeletion(fiber, domParent) {
+		//找到该 fiber 下第一个有 DOM 节点的 fiber 节点进行删除
+		if (fiber.dom) {
+			domParent.removeChild(fiber.dom);
+		} else {
+			commitDeletion(fiber.child, domParent);
+		}
+	}
 	/* Concurrent Mode 并发模型 */
 
 	let nextUnitOfWork = null; //第一次就是变为 根节点
@@ -166,16 +179,12 @@
 
 	// 执行每一小块的任务单元，并返回下一个任务单元
 	function performUnitOfWork(fiber) {
-		// add DOM node
-		if (!fiber.dom) {
-			// 创建 fiber 对应的 DOM 节点
-			// 用 fiber.dom 维护创建的 DOM 节点
-			fiber.dom = createDom(fiber);
+		const isFunctionComponent = fiber.type instanceof Function;
+		if (isFunctionComponent) {
+			updateFunctionComponent(fiber);
+		} else {
+			updateHostComponent(fiber);
 		}
-
-		// create new fibers
-		const elements = fiber.props.children;
-		reconcileChildren(fiber, elements);
 
 		// return next unit of work
 		//child -> sibling -> uncle
@@ -187,6 +196,22 @@
 		}
 	}
 
+	// 用于从函数组件中生成子组件
+	function updateFunctionComponent(fiber) {
+		// fiber.type 是一个函数，并且运行之后返回一个 JSX element
+		const children = [fiber.type(fiber.props)];
+		reconcileChildren(fiber, children);
+	}
+	function updateHostComponent(fiber) {
+		// add DOM node
+		if (!fiber.dom) {
+			// 创建 fiber 对应的 DOM 节点
+			// 用 fiber.dom 维护创建的 DOM 节点
+			fiber.dom = createDom(fiber);
+		}
+		// create new fibers
+		reconcileChildren(fiber, fiber.props.children);
+	}
 	/**
 	 * 调和（reconcile）旧的 fiber 节点 和新的 react elements。
 	 * @param {*} wipFiber
