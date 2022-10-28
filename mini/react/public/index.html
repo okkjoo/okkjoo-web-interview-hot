@@ -41,6 +41,14 @@
       console.log('render')
     }
 
+    function Counter() {
+      const [state, setState] = Reactz.useState(1);
+      return /*#__PURE__*/ Reactz.createElement("h1", {
+        onClick: () => setState(c => c + 1)
+      }, "Count: ", state);
+    }
+    const functionElement = /*#__PURE__*/ Reactz.createElement(Counter, null);
+
     const rerender = value => {
       const inputElement = /*#__PURE__*/ Reactz.createElement("div", null, /*#__PURE__*/ Reactz.createElement(
         "input", {
@@ -58,7 +66,8 @@
         Reactz.createElement("h2", {
           style: "text-align:right"
         }, "from Reactz"),
-        inputElement
+        inputElement,
+        functionElement
       );
       Reactz.render(element, container);
     };
