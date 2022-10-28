@@ -245,3 +245,46 @@ element.props.children.forEach(child => render(child, dom));
 #### fiber node
 
 就是从 element 到 DOM node 的中间产物，就是用来方便时间切片的
+
+## render & commit
+
+现在发现了一个问题
+
+传入 render 中的 element 是没有问题的
+
+![1666938893173](image/README/1666938893173.png)
+
+但是渲染出来的效果却少了第二个节点：
+
+![1666938944098](image/README/1666938944098.png)
+
+少了本该出现在右小角的 from Reactz
+
+这说明我们看到了 **未完全渲染**的 UI
+
+为什么？
+因为我们在 performUnitOfWork 中一边遍历 element，一边生成新的 DOM 节点并添加到父节点的 DOM
+
+在整一棵树渲染完成之前，浏览器中途阻断了这个过程 —— 导致我们看到了未完全渲染的 UI，这当然不是我们想要的
+
+```js
+function performUnitOfWork(fiber) {
+	// add DOM node
+	if (!fiber.dom) {
+		// 创建 fiber 对应的 DOM 节点
+		// 用 fiber.dom 维护创建的 DOM 节点
+		fiber.dom = createDom(fiber);
+	}
+	if (fiber.parent) {
+		//添加到父节点的 DOM 上
+		fiber.parent.dom.appendChild(fiber.dom);
+	}
+	//...
+}
+```
+
+所以现在不要在那里修改 DOM 节点了，将添加 DOM 那部分删除
+
+我们将修改 DOM 的部分记录到 fiber 树上，通过追踪这棵树来收集所有 DOM 节点的修改 —— 这就是 wipRoot(work in progress root)
+
+等完成了 wipRoot 这颗树上的所有任务（next unit of work 为 undefined）时，就将 DOM 树的变更统一一起提交到真实 DOM 树上 —— 通过调用 commitRoot
