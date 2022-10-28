@@ -145,7 +145,7 @@
 		if (fiber.child) return fiber.child;
 		let nextFiber = fiber;
 		while (nextFiber) {
-			if (nextFiber.siblings) return nextFiber.siblings;
+			if (nextFiber.sibling) return nextFiber.sibling;
 			nextFiber = nextFiber.parent;
 		}
 	}
