@@ -159,7 +159,7 @@ function render(element, container) {
     const element = (
       <div style="background: salmon">
         <h1>Hello World</h1>
-        <h2 style="text-align:right">from Didact</h2>
+        <h2 style="text-align:right">from Reactz</h2>
       </div>
     );
     ```
@@ -382,3 +382,71 @@ rerender('z!');
 效果：
 
 ![1666958084055](image/README/1666958084055.gif)
+
+## 支持函数组件
+
+### jsx -> js
+
+```jsx
+function App(props) {
+	return <h1>Hi {props.name}</h1>;
+}
+const element = <App name='foo' />;
+```
+
+js:
+
+```js
+function App(props) {
+	return Reactz.createElement('h1', null, 'Hi ', props.name);
+}
+const element = Reactz.createElement(App, {
+	name: 'foo',
+});
+```
+
+### 差异
+
+函数组件的 fiber 节点本身没 DOM 节点，而且子节点就是由函数运行得来而不能直接从 props 中获取
+
+所以当 fiber 类型为函数时，还要特殊处理一下
+
+```js
+function performUnitOfWork(fiber) {
+	const isFunctionComponent = fiber.type instanceof Function;
+	if (isFunctionComponent) {
+		updateFunctionComponent(fiber);
+	} else {
+		updateHostComponent(fiber);
+	}
+	//...
+}
+```
+
+另外因为函数组件没有 DOM 节点，在寻找父子节点等操作中要跳过
+
+也就是一直找到有 DOM 节点的 fiber 为止
+
+```js
+function commitWork(fiber) {
+	if (!fiber) return;
+	let domParentFiber = fiber.parent;
+	while (!domParentFiber.dom) {
+		domParentFiber = domParent.parent;
+	}
+	//...
+}
+```
+
+删除节点的时候也是同理，抽出来做 commitDeletion
+
+```js
+function commitDeletion(fiber, domParent) {
+	//找到该 fiber 下第一个有 DOM 节点的 fiber 节点进行删除
+	if (fiber.dom) {
+		domParent.removeChild(fiber.dom);
+	} else {
+		commitDeletion(fiber.child, domParent);
+	}
+}
+```
