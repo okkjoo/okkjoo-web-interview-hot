@@ -267,6 +267,17 @@ element.props.children.forEach(child => render(child, dom));
 
 在整一棵树渲染完成之前，浏览器中途阻断了这个过程 —— 导致我们看到了未完全渲染的 UI，这当然不是我们想要的
 
+> 艹 发现不是这个导致的问题，而是我前面有一个拼写错误导致没渲染出来。之前还给我硬圆回来了，给观众磕一个
+> fix:
+
+```js
+function performUnitOfWork() {
+	//...
+	if (nextFiber.sibling) return nextFiber.sibling;
+	//...
+}
+```
+
 ```js
 function performUnitOfWork(fiber) {
 	// add DOM node
