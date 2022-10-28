@@ -299,3 +299,86 @@ function performUnitOfWork(fiber) {
 我们将修改 DOM 的部分记录到 fiber 树上，通过追踪这棵树来收集所有 DOM 节点的修改 —— 这就是 wipRoot(work in progress root)
 
 等完成了 wipRoot 这颗树上的所有任务（next unit of work 为 undefined）时，就将 DOM 树的变更统一一起提交到真实 DOM 树上 —— 通过调用 commitRoot
+
+## 协调 Reconciliation
+
+前面只是添加节点，但我们还需要 更新和删除节点
+
+后两者就需要进行比较了 —— 比较 render 中新拿到的 element 生成的 fiber 树和**上一次提交到 DOM 的 fiber 树**（这玩意就放到 currentRoot 中保存着吧）
+
+而每一个 fiber 节点也需要一个上一个状态的记录 —— 就叫 alternate 吧
+
+为了方便操作，我们要从 performUnitOfWork 中将创建 fiber 节点的代码抽离出来，封装到 reconcileChildren 中
+
+并且在 reconcileChildren 中还会会调和（reconcile）旧的 fiber 节点 和新的 react elements。
+
+迭代 react elements 数组同时迭代旧的 fiber 节点(wipFiber) 比较两者差异，也就是 diff 算法
+
+### 比较
+
+- 新旧节点类型相同 —— 复用旧 DOM，仅修改上面的属性
+- 类型不同 —— 创建一个新 DOM 节点，并删除旧节点（如果有旧节点的话）
+
+> key 属性优化协调进程就是它用来检测 elements 中的子组件是否仅仅是更换了位置
+
+并且我们会在 生成的 fiber 上添加一个 effectTag 用来标记更新，这将在 commit 中用到
+
+提交的时候再遍历旧 fiber 树的话非常浪费，不如直接将要删除的 旧 fiber 收集起来放到 deletions 即可。
+
+#### 比较属性
+
+- children 属性例外
+- 监听事件 属性例外 （on 开头的）
+- 属性更新
+- 属性删除
+
+### 测试 & 效果
+
+测试代码
+
+```js
+const container = document.getElementById('root');
+
+const updateValue = e => {
+	console.log(e.target.value);
+	rerender(e.target.value);
+	console.log('render');
+};
+
+const rerender = value => {
+	const inputElement = /*#__PURE__*/ Reactz.createElement(
+		'div',
+		null,
+		/*#__PURE__*/ Reactz.createElement('input', {
+			onInput: updateValue,
+			value: value,
+		}),
+		/*#__PURE__*/ Reactz.createElement('h2', null, 'Hello ', value)
+	);
+
+	const element = /*#__PURE__*/ Reactz.createElement(
+		'div',
+		{
+			style: 'background: aquamarine; ',
+		},
+		/*#__PURE__*/
+		Reactz.createElement('h1', null, 'Hello World'),
+		/*#__PURE__*/
+		Reactz.createElement(
+			'h2',
+			{
+				style: 'text-align:right',
+			},
+			'from Reactz'
+		),
+		inputElement
+	);
+	Reactz.render(element, container);
+};
+
+rerender('z!');
+```
+
+效果：
+
+![1666958084055](image/README/1666958084055.gif)
