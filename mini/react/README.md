@@ -215,3 +215,33 @@ element.props.children.forEach(child => render(child, dom));
 > scheduler
 > This is a package for cooperative scheduling in a browser environment. It is currently used internally by React, but we plan to make it more generic.
 > 这是一个用于浏览器环境中的协作调度的包。它目前在 React 内部使用，但我们计划让它更通用。
+
+## Fiber 数据结构
+
+这个数据结构存在的意义就是为了将所有的任务单元组合起来
+
+每一个 element 都是一个 fiber ，每一个 fiber 都是一个任务单元
+
+每个 fiber 节点主要做三件事：
+
+1. 把 element 添加到 DOM 上
+2. 为 fiber 节点的子节点新建 fiber
+3. 挑出下一个任务单元
+
+至于怎么找 —— 基础就是他要有三个指针分别指向第一个子节点 child、下一个兄弟节点 sibling、父节点 parent(源码里好像是 return)
+
+一般是先找子节点、没有就兄弟、再没有就去 **父节点的兄弟**，也就是叔叔节点、都没了一直往上，回到 根节点就说明完成了整个树的 render
+
+### 注意区分三个不同的节点实体
+
+#### element
+
+通过 React.createElement 创建的 react element
+
+#### DOM node
+
+通过 React.createDom 中调用 document.createElement 最终生成的 DOM 节点
+
+#### fiber node
+
+就是从 element 到 DOM node 的中间产物，就是用来方便时间切片的
