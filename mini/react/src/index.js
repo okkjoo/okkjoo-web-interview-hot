@@ -124,7 +124,7 @@
 		if (!fiber) return;
 		let domParentFiber = fiber.parent;
 		while (!domParentFiber.dom) {
-			domParentFiber = domParent.parent;
+			domParentFiber = domParentFiber.parent;
 		}
 		const domParent = domParentFiber.dom;
 
@@ -196,12 +196,50 @@
 		}
 	}
 
+	let wipFiber = null;
+	let hookIndex = null;
+
 	// 用于从函数组件中生成子组件
 	function updateFunctionComponent(fiber) {
+		wipFiber = fiber;
+		hookIndex = 0;
+		wipFiber.hooks = [];
 		// fiber.type 是一个函数，并且运行之后返回一个 JSX element
 		const children = [fiber.type(fiber.props)];
 		reconcileChildren(fiber, children);
 	}
+
+	function useState(initial) {
+		const oldHook =
+			wipFiber.alternate &&
+			wipFiber.alternate.hooks &&
+			wipFiber.alternate.hooks[hookIndex];
+
+		const hook = {
+			state: oldHook ? oldHook.state : initial,
+			queue: [],
+		};
+		// 第二次渲染开始就会将所有 action 从旧的 hook 队列中取出
+		const actions = oldHook ? oldHook.queue : [];
+		// 依次调用 action
+		actions.forEach(action => {
+			hook.state = action(hook.state);
+		});
+		const setState = action => {
+			hook.queue.push(action);
+			wipRoot = {
+				dom: currentRoot.dom,
+				props: currentRoot.props,
+				alternate: currentRoot,
+			};
+			nextUnitOfWork = wipRoot;
+			deletions = [];
+		};
+		wipFiber.hooks.push(hook);
+		hookIndex++;
+		return [hook.state, setState];
+	}
+
 	function updateHostComponent(fiber) {
 		// add DOM node
 		if (!fiber.dom) {
@@ -276,4 +314,5 @@
 
 	exports.createElement = createElement;
 	exports.render = render;
+	exports.useState = useState;
 });
