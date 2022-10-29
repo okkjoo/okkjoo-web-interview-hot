@@ -507,3 +507,28 @@ function useState(initial) {
 ### 效果
 
 ![1667006638905](image/README/1667006638905.gif)
+
+## 各阶段调用展示
+
+workLoop 的调用就省去了，他会一直刷
+
+```js
+function workLoop(deadline) {
+	// clog('workLoop');
+}
+```
+
+### 初始
+
+![1667013692470](image/README/1667013692470.gif)
+![1667014907139](image/README/1667014907139.png)
+![1667014947805](image/README/1667014947805.png)
+...
+![1667014961550](image/README/1667014961550.png)
+
+### 状态更新
+
+![1667014875521](image/README/1667014875521.gif)
+![1667014980746](image/README/1667014980746.png)
+...
+![1667015018154](image/README/1667015018154.png)
