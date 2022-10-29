@@ -6,8 +6,21 @@
 		: ((global = global || self), factory((global.Reactz = {})));
 })(this, function (exports) {
 	'use strict';
+	/* 单纯为 debug 输出，方便理解 */
+	const debug = () => {
+		const type_time = {};
+		return type => {
+			type_time[type] = (type_time[type] || 0) + 1;
+			console.log(type, type_time[type]);
+		};
+	};
+	const clog = debug();
+	// 输出 workLoop 加个节流，不然一直跳
+
 	/* createElement */
 	function createElement(type, props, ...children) {
+		clog('createElement');
+
 		return {
 			type,
 			props: {
@@ -25,6 +38,8 @@
 	 * @returns 包裹为 type 为特殊类型 TEXT_ELEMENT 的JS对象
 	 */
 	function createTextElement(text) {
+		clog('createTextElement');
+
 		return {
 			type: 'TEXT_ELEMENT',
 			props: {
@@ -42,6 +57,8 @@
 
 	/* 创建一个 DOM 节点，抽离出来当一个函数 */
 	function createDom(fiber) {
+		clog('createDom');
+
 		//根据 element.type 属性创建 DOM 节点
 		const dom =
 			fiber.type === 'TEXT_ELEMENT'
@@ -63,6 +80,8 @@
 
 	/* ReactDOM.render  */
 	function render(element, container) {
+		clog('render');
+
 		// 先记录到 wipRoot 上
 		wipRoot = {
 			dom: container,
@@ -77,6 +96,8 @@
 	}
 
 	function updateDom(dom, prevProps, nextProps) {
+		clog('updateDom');
+
 		// 删除过时的事件监听（已经删除或者更新）
 		Object.keys(prevProps)
 			.filter(isEvent)
@@ -113,6 +134,8 @@
 
 	/* commitRoot 提交变更到真实 DOM 树上 */
 	function commitRoot() {
+		clog('commitRoot');
+
 		// 将删除旧 DOM 的变更提交
 		deletions.forEach(commitWork);
 		commitWork(wipRoot.child);
@@ -121,6 +144,8 @@
 	}
 
 	function commitWork(fiber) {
+		clog('commitWork');
+
 		if (!fiber) return;
 		let domParentFiber = fiber.parent;
 		while (!domParentFiber.dom) {
@@ -142,6 +167,8 @@
 	}
 
 	function commitDeletion(fiber, domParent) {
+		clog('commitDeletion');
+
 		//找到该 fiber 下第一个有 DOM 节点的 fiber 节点进行删除
 		if (fiber.dom) {
 			domParent.removeChild(fiber.dom);
@@ -161,6 +188,8 @@
 	 * @param {} deadline requestIdleCallback 会给到的参数，这个参数可以获取当前空闲时间以及回调是否在超时时间前已经执行的状态。
 	 */
 	function workLoop(deadline) {
+		// clog('workLoop');
+
 		let shouldYield = false;
 		while (nextUnitOfWork && !shouldYield) {
 			nextUnitOfWork = performUnitOfWork(nextUnitOfWork); // 执行并返回下一个任务单元
@@ -179,6 +208,7 @@
 
 	// 执行每一小块的任务单元，并返回下一个任务单元
 	function performUnitOfWork(fiber) {
+		clog('performUnitOfWork');
 		const isFunctionComponent = fiber.type instanceof Function;
 		if (isFunctionComponent) {
 			updateFunctionComponent(fiber);
@@ -201,6 +231,8 @@
 
 	// 用于从函数组件中生成子组件
 	function updateFunctionComponent(fiber) {
+		clog('updateFunctionComponent');
+
 		wipFiber = fiber;
 		hookIndex = 0;
 		wipFiber.hooks = [];
@@ -210,6 +242,8 @@
 	}
 
 	function useState(initial) {
+		clog('useState');
+
 		const oldHook =
 			wipFiber.alternate &&
 			wipFiber.alternate.hooks &&
@@ -241,6 +275,8 @@
 	}
 
 	function updateHostComponent(fiber) {
+		clog('updateHostComponent');
+
 		// add DOM node
 		if (!fiber.dom) {
 			// 创建 fiber 对应的 DOM 节点
@@ -256,6 +292,8 @@
 	 * @param {*} elements
 	 */
 	function reconcileChildren(wipFiber, elements) {
+		clog('reconcileChildren');
+
 		// create new fibers
 		let index = 0;
 		let oldFiber = wipFiber.alternate && wipFiber.alternate.child;
