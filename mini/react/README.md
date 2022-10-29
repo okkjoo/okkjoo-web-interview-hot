@@ -450,3 +450,60 @@ function commitDeletion(fiber, domParent) {
 	}
 }
 ```
+
+## Hooks
+
+函数组件自身是没办法保存状态的，这个就依赖于 Hook 了
+
+首先我们需要一些全局变量 —— 这是必须的，函数组件自身没法保存状态
+
+所以我们需要在对应的 fiber 节点上加上 hooks 数组存储函数组件中使用的 hook —— 比如记录当前 hook 的序号
+
+当函数组件调用 hook ，我们就检验 fiber 的 alternate，(也就是旧 fiber),检验有没有旧的 hook，hook 的序号就用来记录这是该组件下的第几个 hook
+
+如果没有旧 hook 就直接初始化 state，如果有，就将旧 hook 复制一份到新 hook 里
+
+然后 fiber 上增加新 hook，hookIndex++，最后返回状态
+
+以 useState 为例，它要能更新状态 —— 这依赖于别的方法，可以就叫他 setState，以计数器为例，setState 就接收 自增 state 的方法 作为参数——称为 action
+
+将 action 加入 hook 队列，然后将 wipRoot 设置为当前的 fiber 即可。
+
+剩下交给协调器就好了
+
+```js
+function useState(initial) {
+	const oldHook =
+		wipFiber.alternate &&
+		wipFiber.alternate.hooks &&
+		wipFiber.alternate.hooks[hookIndex];
+
+	const hook = {
+		state: oldHook ? oldHook.state : initial,
+		queue: [],
+	};
+	// 第二次渲染开始就会将所有 action 从旧的 hook 队列中取出
+	const actions = oldHook ? oldHook.queue : [];
+	// 依次调用 action
+	actions.forEach(action => {
+		hook.state = action(hook.state);
+	});
+	const setState = action => {
+		hook.queue.push(action);
+		wipRoot = {
+			dom: currentRoot.dom,
+			props: currentRoot.props,
+			alternate: currentRoot,
+		};
+		nextUnitOfWork = wipRoot;
+		deletions = [];
+	};
+	wipFiber.hooks.push(hook);
+	hookIndex++;
+	return [hook.state, setState];
+}
+```
+
+### 效果
+
+![1667006638905](image/README/1667006638905.gif)
