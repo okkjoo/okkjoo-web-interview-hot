@@ -4,6 +4,64 @@
 > 为什么这么特殊？主要是它太常考了~ (其实是因为 vscode leetcode 插件里没有里面的题目，之前没怎么做)
 > 使用说明：CTRL+F 搜题目名字或题号即可
 
+## 剑指 Offer 09. 用两个栈实现队列|简单|栈|队列
+
+### 题目描述
+
+```
+用两个栈实现一个队列。队列的声明如下，请实现它的两个函数 appendTail 和 deleteHead ，分别完成在队列尾部插入整数和在队列头部删除整数的功能。(若队列中没有元素，deleteHead 操作返回 -1 )
+
+```
+
+### 解题思路
+
+简单的考察一下数据结构中栈和队列的性质
+
+- 栈：先进后出，后进先出
+- 队列：先进先出，后进后出
+
+要想用栈来模拟队列，那一个栈肯定不行，那就拿两个 —— 一个插入栈、一个删除栈
+
+插入直接插入插入栈即可，删除时检查删除栈有没有数据，没有的话就把插入栈中的依次拿出，依次放入删除栈 —— 顺序就对了
+
+然后简单判断一下队列为空的情况即可
+
+### 代码
+
+```js
+var CQueue = function () {
+	this.stkA = [];
+	this.stkD = [];
+};
+
+/**
+ * @param {number} value
+ * @return {void}
+ */
+CQueue.prototype.appendTail = function (value) {
+	this.stkA.push(value);
+};
+
+/**
+ * @return {number}
+ */
+CQueue.prototype.deleteHead = function () {
+	if (this.stkD.length) return this.stkD.pop();
+	else {
+		while (this.stkA.length) this.stkD.push(this.stkA.pop());
+		if (!this.stkD.length) return -1;
+		else return this.stkD.pop();
+	}
+};
+
+/**
+ * Your CQueue object will be instantiated and called as such:
+ * var obj = new CQueue()
+ * obj.appendTail(value)
+ * var param_2 = obj.deleteHead()
+ */
+```
+
 ## 剑指 Offer 22. 链表中倒数第 k 个节点|简单|双指针
 
 ### 题目描述
