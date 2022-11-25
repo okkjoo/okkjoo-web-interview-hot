@@ -2,6 +2,50 @@
 > 合集仓库：[okkjoo-leetcodeHot-byJs](https://github.com/okkjoo/okkjoo-leetcodeHot-byJs)
 > 这里专门放剑指 offer 里面的题目
 > 为什么这么特殊？主要是它太常考了~ (其实是因为 vscode leetcode 插件里没有里面的题目，之前没怎么做)
+> 使用说明：CTRL+F 搜题目名字或题号即可
+
+## 剑指 Offer 22. 链表中倒数第 k 个节点|简单|双指针
+
+### 题目描述
+
+```
+输入一个链表，输出该链表中倒数第k个节点。为了符合大多数人的习惯，本题从1开始计数，即链表的尾节点是倒数第1个节点。
+
+例如，一个链表有 6 个节点，从头节点开始，它们的值依次是 1、2、3、4、5、6。这个链表的倒数第 3 个节点是值为 4 的节点。
+```
+
+### 解题思路
+
+经典快慢指针，k 个 k 个，快指针先走 k 步后慢指针开始走即可。快指针到结尾时，慢指针就到了倒数第 k 个
+
+### 代码
+
+```js
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val) {
+ *     this.val = val;
+ *     this.next = null;
+ * }
+ */
+/**
+ * @param {ListNode} head
+ * @param {number} k
+ * @return {ListNode}
+ */
+var getKthFromEnd = function (head, k) {
+	let fast = head,
+		slow = head;
+	while (k--) {
+		fast = fast.next;
+	}
+	while (fast) {
+		fast = fast.next;
+		slow = slow.next;
+	}
+	return slow;
+};
+```
 
 ## 剑指 Offer 54. 二叉搜索树的第 k 大节点|简单
 
