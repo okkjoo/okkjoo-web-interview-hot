@@ -105,6 +105,79 @@ var getKthFromEnd = function (head, k) {
 };
 ```
 
+## [剑指 Offer 36. 二叉搜索树与双向链表](https://leetcode.cn/problems/er-cha-sou-suo-shu-yu-shuang-xiang-lian-biao-lcof/)|中等|二叉搜索树性质
+
+### 题目描述
+
+```
+输入一棵二叉搜索树，将该二叉搜索树转换成一个排序的循环双向链表。要求不能创建任何新的节点，只能调整树中节点指针的指向。
+```
+
+> 原题还有图示，看不太懂题目可以去看看
+
+### 解题思路
+
+> 双向循环链表:第一个节点的前驱是最后一个节点，最后一个节点的后继是第一个节点
+
+注意一个关键限制：**要求不能创建任何新的节点，只能调整树中节点指针的指向。**
+
+也就是就地完成操作，最后返回链表中第一个节点指针
+
+然后就是有序了，首先二叉搜索树的属性就是某节点的左子树都小于它... 所以一个二叉搜索树的中序遍历（左中右）—— 写个 dfs 就好了，自然就是按照升序的顺序操作
+
+关键操作就在左中右的那个中里面：
+
+获取到中节点 root 之后
+
+1. 上一个节点也就是中节点的左子节点的 right 要指向 root
+2. root 的 left 自然要指回 上一个节点
+
+所以 需要将上一个节点存储下来，并且在每次处理完的中节点就是下一次 dfs 的 上一个节点
+
+另外就是最后一个节点要和第一个节点相连，所以还要存一下 head —— 整棵树最左边的那个
+
+### 代码
+
+```js
+/**
+ * // Definition for a Node.
+ * function Node(val,left,right) {
+ *    this.val = val;
+ *    this.left = left;
+ *    this.right = right;
+ * };
+ */
+/**
+ * @param {Node} root
+ * @return {Node}
+ */
+var treeToDoublyList = function (root) {
+	if (root === null) return null;
+	let head = null,
+		pre = null;
+	const dfs = root => {
+		if (root === null) return;
+		// 左
+		dfs(root.left);
+		// 中
+		if (pre === null) {
+			// 第一次到中，pre 就还是 null，此时到了整棵树最左边
+			head = root;
+		} else {
+			pre.right = root;
+			root.left = pre;
+		}
+		pre = root;
+		// 右
+		dfs(root.right);
+	};
+	dfs(root);
+	head.left = pre;
+	pre.right = head;
+	return head;
+};
+```
+
 ## 剑指 Offer 54. 二叉搜索树的第 k 大节点|简单
 
 ### 题目描述
