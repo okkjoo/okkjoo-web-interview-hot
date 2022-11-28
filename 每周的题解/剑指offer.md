@@ -62,6 +62,53 @@ CQueue.prototype.deleteHead = function () {
  */
 ```
 
+## [剑指 Offer 10- II. 青蛙跳台阶问题](https://leetcode.cn/problems/qing-wa-tiao-tai-jie-wen-ti-lcof/)
+
+### 题目描述
+
+```
+一只青蛙一次可以跳上1级台阶，也可以跳上2级台阶。求该青蛙跳上一个 n 级的台阶总共有多少种跳法。
+
+答案需要取模 1e9+7（1000000007），如计算初始结果为：1000000008，请返回 1。
+
+```
+
+### 解题思路
+
+DP 入门题目
+
+每一步可以 1 级也可以 2 级，说明到第 i 级阶梯可能是从上一个或者是上上一个
+
+- `dp[i]` 表示到 第 i 个阶梯的跳法数
+
+- 初始化`dp[0] = dp[1] = d[2] = 1`
+
+- 状态转移 `dp[i] = dp[i - 1] + dp[i - 2]`
+
+那答案就是 `dp[n]`
+
+然后发现其实只需要保存最近的两个状态`dp[i-2]与dp[i-1]` —— 两个变量就可以了，把空间优化了
+
+### 代码
+
+```js
+/**
+ * @param {number} n
+ * @return {number}
+ */
+var numWays = function (n) {
+	if (n <= 2) return n === 0 ? 1 : n;
+	let a = 1,
+		b = 2;
+	for (let i = 3; i <= n; i++) {
+		let t = a + b;
+		a = b;
+		b = t % 1000000007;
+	}
+	return b;
+};
+```
+
 ## 剑指 Offer 22. 链表中倒数第 k 个节点|简单|双指针
 
 ### 题目描述
@@ -175,6 +222,70 @@ var treeToDoublyList = function (root) {
 	head.left = pre;
 	pre.right = head;
 	return head;
+};
+```
+
+## [剑指 Offer 51. 数组中的逆序对](https://leetcode.cn/problems/shu-zu-zhong-de-ni-xu-dui-lcof/)|困难|分治思想|归并排序|树状数组
+
+### 题目描述
+
+```
+在数组中的两个数字，如果前面一个数字大于后面的数字，则这两个数字组成一个逆序对。输入一个数组，求出这个数组中的逆序对的总数。
+```
+
+### 解题思路
+
+乍一看，直接暴力？ 双层循环嗯找每个数有几个逆序对... 肯定不行，看着题目难度和测试数据范围就知道不行
+
+一次写想不出来我觉得是很正常的，直接上提示吧
+
+> 利用 **归并排序** 计算逆序对
+>
+> 主要通过归并排序中 **合**并两个数组 的这一步骤，借助有序关系，一次性计算出一个元素相关的逆序个数、
+
+如果不知道为什么在合并步骤中可以拿到 —— 那就复习一下逆序吧，脑子里可视化一下那个过程~ 或者找一个归并排序图解，这里懒得画了
+
+所以我们现需要 排序一下，方便后面通过有序关系，快速处理逆序对个数
+
+水平有限，感觉一大段文字还是讲不明白，直接上代码＋注释吧
+
+具体实现其实就是归并 + 关键地方的处理
+
+> 还有一种树状数组的做法，这就比较专业了，我觉得不打竞赛什么的可以先不掌握
+
+### 代码
+
+```js
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var reversePairs = function (nums) {
+	let cnt = 0;
+	if (nums.length < 2) return 0;
+	const merge = (left, right) => {
+		const tmp = [];
+		let i = 0,
+			j = 0;
+		while (i < left.length && j < right.length) {
+			if (left[i] <= right[j]) tmp.push(left[i++]); // 左小于右正常
+			else {
+				//* 关键就在这里：左大于右就会产生逆序对
+				tmp.push(right[j++]);
+				// 左右有序，左边当前元素以及之后的元素，都会和 right[j] 产生一个逆序对
+				cnt += left.length - i;
+			}
+		}
+		return [...tmp, ...left.slice(i), ...right.slice(j)];
+	};
+	const mergeSort = arr => {
+		if (arr.length < 2) return arr;
+		const mid = arr.length >> 1;
+		const left = arr.splice(0, mid);
+		return merge(mergeSort(left), mergeSort(arr));
+	};
+	mergeSort(nums);
+	return cnt;
 };
 ```
 
