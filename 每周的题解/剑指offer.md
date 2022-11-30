@@ -271,6 +271,85 @@ var treeToDoublyList = function (root) {
 };
 ```
 
+## [剑指 Offer 42. 连续子数组的最大和](https://leetcode.cn/problems/lian-xu-zi-shu-zu-de-zui-da-he-lcof/)|动态规划|前缀和
+
+### 题目描述
+
+```
+输入一个整型数组，数组中的一个或连续多个整数组成一个子数组。求所有子数组的和的最大值。
+
+要求时间复杂度为O(n)。
+```
+
+### 解题思路1 动态规划
+
+暴力双层循环的话时间复杂度就是O(n^2)
+
+还得是动态规划
+
+用 `dp[i]` 表示末尾下标为 i 的子序列中子数组和最大值
+
+最终答案就是 `Max{dp[i],i∈[0,1,...,n-1]}` —— 每次循环中记录即可
+
+状态转移方程：`dp[i] = max(dp[i], dp[i] + nums[i])`，因为`nums[i]`可能是负的
+
+然后还能再优化一下空间，因为遍历过一次 nums 就不用了，所以可以直接拿 nums 当 dp 数组
+
+### 代码1 动态规划
+
+```js
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var maxSubArray = function(nums) {
+    let mx = nums[0]
+    for(let i = 1; i < nums.length; i++){
+        nums[i] = Math.max(nums[i], nums[i] + nums[i-1])
+        if(nums[i] > mx) mx = nums[i]
+    }
+    return mx
+};
+```
+
+### 解题思路2 前缀和
+
+之前暴力效率慢的原因就是，每次查询一段子数组都会有重复的遍历
+
+有没有什么办法可以让每次查询效率高一点呢？那就是前缀和预处理了
+
+>  前缀和，一种降低查询操作复杂度的预处理手段，一句话概述的话就是这样：让`s[i]`记录下标从0到i的和，那么`[i, j]`的和就等于`s[j] - s[i-1]`
+
+那么在这里该怎么结合在一起？
+
+**当`i<j, s[i]`是`s[0],s[1],...s[j-1]`最小值的时候，`s[j]-s[i] = s[j] - min `就是以 j 为下标的子序列之和的最大值了** —— 常数 - B 最大的情况，就是 B 最小的情况，很好理解吧
+
+我们这里只需要临时存储`s[i]` 就好了，所以直接用`sum` 变量就行，用 mn 存储最小的 `s[i]`，
+
+> 时间复杂度为`O(n)`，空间复杂度为`O(1)`
+
+### 代码2 前缀和
+
+```js
+/**
+ * @param {number[]} nums
+ * @return {number}
+ */
+var maxSubArray = function(nums) {
+    let mx = nums[0], mn = 0, sum = 0
+    for(let i = 0; i < nums.length; i++){
+        sum += nums[i]
+        if(sum - mn > mx) mx = sum - mn
+        if(sum < mn) mn = sum
+    }
+    return mx
+};
+```
+
+
+
+
+
 ## [剑指 Offer 51. 数组中的逆序对](https://leetcode.cn/problems/shu-zu-zhong-de-ni-xu-dui-lcof/)|困难|分治思想|归并排序|树状数组
 
 ### 题目描述
