@@ -98,6 +98,7 @@ array
 - [懒计算 lazySum](./Handwriting/utils/lazySum.js)
 - [发布订阅模式](./Handwriting/operate/EvenEmitter.js)
 - [观察者模式](./Handwriting/operate/Observer.js)
+- [分块加载大数据](./Handwriting/operate/%E5%88%86%E5%9D%97%E5%8A%A0%E8%BD%BD%E5%A4%A7%E6%95%B0%E6%8D%AE.js)
 - 模板字符串解析功能
 - 虚拟 DOM 转真实 DOM
 
