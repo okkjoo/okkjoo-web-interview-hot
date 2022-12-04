@@ -42,6 +42,7 @@ promise
 - [concurrentRequest|并发控制](./Handwriting/JS%20basics/concurrentRequest.js)
 - [Promise](./Handwriting/JS%20basics/Promise.js)
 - [asyncTogennerator](<./Handwriting/JS%20basics/async_await(asyncToGenerator).js>)
+- [异步的 sum/add|字节面试|二分思想|异步|并发请求控制](./Handwriting/JS%20basics/%E5%BC%82%E6%AD%A5sum_add.js)
 
 DOM
 
