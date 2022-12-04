@@ -39,7 +39,7 @@ promise
 
 - [Promise.all](./Handwriting/JS%20basics/promiseAll.js)
 - [Promise.race](./Handwriting/JS%20basics/promiseRace.js)
-- 并发限制的 Promise 调度
+- [concurrentRequest|并发控制](./Handwriting/JS%20basics/concurrentRequest.js)
 - [Promise](./Handwriting/JS%20basics/Promise.js)
 - [asyncTogennerator](<./Handwriting/JS%20basics/async_await(asyncToGenerator).js>)
 
