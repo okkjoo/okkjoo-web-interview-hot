@@ -34,8 +34,9 @@ console.log(test()); //true
 */
 const _completeDeepClone = (target, map = new Map()) => {
 	if (typeof target !== 'object' && typeof target !== 'function') return target;
-	if (/^(Function|RegExp|Date|Map|Set)$/i.test(constructor.name))
-		return new constructor(target);
+	// 这里不特殊判断其实结果也对，因为在下面也还是借助构造器 new 了全新的对象(不论是什么对象)，主要减少了一次遍历吧
+	if (/^(Function|RegExp|Date|Map|Set)$/i.test(target.constructor.name))
+		return new target.constructor(target);
 	// if (map.has(target)) return target;
 	// map.set(target, true);
 	if (map.has(target)) return map.get(target);
