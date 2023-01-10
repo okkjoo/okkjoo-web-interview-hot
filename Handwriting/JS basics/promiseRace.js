@@ -8,7 +8,8 @@ function promiseRace(promises) {
 		promises.forEach(p => {
 			//把 上面的 resolve 注入数组中的每一个 Promise实例中的回调函数
 			// 实现 只返回 第一个 Promise 执行完返回的 promise
-			p.then(resolve, reject);
+			// 包裹一层保证是一个 promise
+			Promise.resolve(p).then(resolve, reject);
 		});
 	});
 }
