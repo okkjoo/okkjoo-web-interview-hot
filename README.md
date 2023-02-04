@@ -10,7 +10,7 @@ function
 - [bind](./Handwriting/JS%20basics/bind.js)
 - [call](./Handwriting/JS%20basics/call.js)
 - [apply](./Handwriting/JS%20basics/apply.js)
-- 用 setTimeout 实现 setInterval
+- [用 setTimeout 实现 setInterval](./Handwriting/JS%20basics/setinterval.js)
 
 array
 
@@ -56,10 +56,12 @@ function
 
 - [throtle](./Handwriting/utils/throttle.js)
 - [debounce](./Handwriting/utils/debounce.js)
+- [节流防抖结合](./Handwriting/utils/debouncePro.js)
 - [compose](./Handwriting/utils/compose.ts)
 - [once](./Handwriting/utils/once.ts)
 - [delay](./Handwriting/utils/delay.ts)
 - [sleep](./Handwriting/utils/sleep.ts)
+- [柯里化](./Handwriting/utils/currying.js)
 
 object
 
@@ -67,6 +69,7 @@ object
 - [deepClone](./Handwriting/utils/deepClone.js)
   - [退阶版 deepClone](<./Handwriting/utils/deepClone(easy).js>)
 - [deepEqual](./Handwriting/utils/deepEqual.js)
+- [flatObject 对象扁平化](./Handwriting/utils/flatObject.js)
 - get TODO
 
 array
@@ -100,7 +103,8 @@ array
 - [发布订阅模式](./Handwriting/operate/EvenEmitter.js)
 - [观察者模式](./Handwriting/operate/Observer.js)
 - [分块加载大数据](./Handwriting/operate/%E5%88%86%E5%9D%97%E5%8A%A0%E8%BD%BD%E5%A4%A7%E6%95%B0%E6%8D%AE.js)
-- 模板字符串解析功能
+- [模板字符串解析功能](./Handwriting/operate/%E6%A8%A1%E6%9D%BF%E5%AD%97%E7%AC%A6%E4%B8%B2%E8%A7%A3%E6%9E%90.js)
+- [单例模式](./Handwriting/operate/%E5%8D%95%E4%BE%8B%E6%A8%A1%E5%BC%8Fsingleton.js)
 - 虚拟 DOM 转真实 DOM
 
 ## 正则表达式
